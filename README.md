@@ -1,4 +1,4 @@
-AI Voice Agents Challenge - Day 2 – Coffee Shop Barista Agent
+AI Voice Agents Challenge - Day-1-Get-Your-Starter-Voice-Agent-Running
 Welcome to the AI Voice Agents Challenge by murf.ai!
 
 Repository Structure
@@ -36,4 +36,4 @@ Light/dark theme switching
 Highly customizable branding and UI
 → Frontend Documentation
 
-Built for the AI Voice Agents Challenge of murf.ai
+Built for the AI Voice Agents Challenge by murf.ai
