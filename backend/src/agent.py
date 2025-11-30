@@ -36,689 +36,682 @@ logger.addHandler(handler)
 load_dotenv(".env.local")
 
 # -------------------------
-# Simple Game World Definition
+# Simple Product Catalog
 # -------------------------
-# A compact world with a few scenes and choices forming a mini-arc.
-WORLD = {
-    "intro": {
-        "title": "A Shadow over Brinmere",
-        "desc": (
-            "You awake on the damp shore of Brinmere, the moon a thin silver crescent. "
-            "A ruined watchtower smolders a short distance inland, and a narrow path leads "
-            "towards a cluster of cottages to the east. In the water beside you lies a "
-            "small, carved wooden box, half-buried in sand."
-        ),
-        "choices": {
-            "inspect_box": {
-                "desc": "Inspect the carved wooden box at the water's edge.",
-                "result_scene": "box",
-            },
-            "approach_tower": {
-                "desc": "Head inland towards the smoldering watchtower.",
-                "result_scene": "tower",
-            },
-            "walk_to_cottages": {
-                "desc": "Follow the path east towards the cottages.",
-                "result_scene": "cottages",
-            },
-        },
+# A compact Indian-flavored catalog with attributes: id, name, price (INR), category, color, sizes
+CATALOG = [
+    {
+        "id": "mug-001",
+        "name": "Stoneware Chai Mug",
+        "description": "Hand-glazed ceramic mug perfect for masala chai.",
+        "price": 299,
+        "currency": "INR",
+        "category": "mug",
+        "color": "blue",
+        "sizes": [],
     },
-    "box": {
-        "title": "The Box",
-        "desc": (
-            "The box is warm despite the night air. Inside is a folded scrap of parchment "
-            "with a hatch-marked map and the words: 'Beneath the tower, the latch sings.' "
-            "As you read, a faint whisper seems to come from the tower, as if the wind "
-            "itself speaks your name."
-        ),
-        "choices": {
-            "take_map": {
-                "desc": "Take the map and keep it.",
-                "result_scene": "tower_approach",
-                "effects": {"add_journal": "Found map fragment: 'Beneath the tower, the latch sings.'"},
-            },
-            "leave_box": {
-                "desc": "Leave the box where it is.",
-                "result_scene": "intro",
-            },
-        },
+    {
+        "id": "tee-001",
+        "name": "Premium Cotton Tee",
+        "description": "Comfort-fit cotton t-shirt with subtle logo.",
+        "price": 799,
+        "currency": "INR",
+        "category": "tshirt",
+        "color": "black",
+        "sizes": ["S", "M", "L", "XL"],
     },
-    "tower": {
-        "title": "The Watchtower",
-        "desc": (
-            "The watchtower's stonework is cracked and warm embers glow within. An iron "
-            "latch covers a hatch at the base — it looks old but recently used. You can "
-            "try the latch, look for other entrances, or retreat."
-        ),
-        "choices": {
-            "try_latch_without_map": {
-                "desc": "Try the iron latch without any clue.",
-                "result_scene": "latch_fail",
-            },
-            "search_around": {
-                "desc": "Search the nearby rubble for another entrance.",
-                "result_scene": "secret_entrance",
-            },
-            "retreat": {
-                "desc": "Step back to the shoreline.",
-                "result_scene": "intro",
-            },
-        },
+    {
+        "id": "hoodie-001",
+        "name": "Cozy Hoodie",
+        "description": "Warm pullover hoodie, fleece-lined.",
+        "price": 1499,
+        "currency": "INR",
+        "category": "hoodie",
+        "color": "grey",
+        "sizes": ["M", "L", "XL"],
     },
-    "tower_approach": {
-        "title": "Toward the Tower",
-        "desc": (
-            "Clutching the map, you approach the watchtower. The map's marks align with "
-            "the hatch at the base, and you notice a faint singing resonance when you step close."
-        ),
-        "choices": {
-            "open_hatch": {
-                "desc": "Use the map clue and try the hatch latch carefully.",
-                "result_scene": "latch_open",
-                "effects": {"add_journal": "Used map clue to open the hatch."},
-            },
-            "search_around": {
-                "desc": "Search for another entrance.",
-                "result_scene": "secret_entrance",
-            },
-            "retreat": {
-                "desc": "Return to the shore.",
-                "result_scene": "intro",
-            },
-        },
+    {
+        "id": "mug-002",
+        "name": "Insulated Travel Mug",
+        "description": "Keeps chai warm on your way to work.",
+        "price": 599,
+        "currency": "INR",
+        "category": "mug",
+        "color": "white",
+        "sizes": [],
     },
-    "latch_fail": {
-        "title": "A Bad Twist",
-        "desc": (
-            "You twist the latch without heed — the mechanism sticks, and the effort sends "
-            "a shiver through the ground. From inside the tower, something rustles in alarm."
-        ),
-        "choices": {
-            "run_away": {
-                "desc": "Run back to the shore.",
-                "result_scene": "intro",
-            },
-            "stand_ground": {
-                "desc": "Stand and prepare for whatever emerges.",
-                "result_scene": "tower_combat",
-            },
-        },
+    {
+        "id": "hoodie-002",
+        "name": "Black Zip Hoodie",
+        "description": "Lightweight zip-up hoodie, black.",
+        "price": 1299,
+        "currency": "INR",
+        "category": "hoodie",
+        "color": "black",
+        "sizes": ["S", "M", "L"],
     },
-    "latch_open": {
-        "title": "The Hatch Opens",
-        "desc": (
-            "With the map's guidance the latch yields and the hatch opens with a breath of cold air. "
-            "Inside, a spiral of rough steps leads down into an ancient cellar lit by phosphorescent moss."
-        ),
-        "choices": {
-            "descend": {
-                "desc": "Descend into the cellar.",
-                "result_scene": "cellar",
-            },
-            "close_hatch": {
-                "desc": "Close the hatch and reconsider.",
-                "result_scene": "tower_approach",
-            },
-        },
+    # T-shirts (expanded)
+    {
+        "id": "tee-002",
+        "name": "Casual Cotton Tee",
+        "description": "Everyday cotton t-shirt, breathable and soft.",
+        "price": 299,
+        "currency": "INR",
+        "category": "tshirt",
+        "color": "white",
+        "sizes": ["S", "M", "L", "XL"],
     },
-    "secret_entrance": {
-        "title": "A Narrow Gap",
-        "desc": (
-            "Behind a pile of rubble you find a narrow gap and old rope leading downward. "
-            "It smells of cold iron and something briny."
-        ),
-        "choices": {
-            "squeeze_in": {
-                "desc": "Squeeze through the gap and follow the rope down.",
-                "result_scene": "cellar",
-            },
-            "mark_and_return": {
-                "desc": "Mark the spot and return to the shore.",
-                "result_scene": "intro",
-            },
-        },
+    {
+        "id": "tee-003",
+        "name": "Graphic Tee",
+        "description": "Printed graphic t-shirt with vibrant design.",
+        "price": 499,
+        "currency": "INR",
+        "category": "tshirt",
+        "color": "navy",
+        "sizes": ["S", "M", "L", "XL"],
     },
-    "cellar": {
-        "title": "Cellar of Echoes",
-        "desc": (
-            "The cellar opens into a circular chamber where runes glow faintly. At the center "
-            "is a stone plinth and upon it a small brass key and a sealed scroll."
-        ),
-        "choices": {
-            "take_key": {
-                "desc": "Pick up the brass key.",
-                "result_scene": "cellar_key",
-                "effects": {"add_inventory": "brass_key", "add_journal": "Found brass key on plinth."},
-            },
-            "open_scroll": {
-                "desc": "Break the seal and read the scroll.",
-                "result_scene": "scroll_reveal",
-                "effects": {"add_journal": "Scroll reads: 'The tide remembers what the villagers forget.'"},
-            },
-            "leave_quietly": {
-                "desc": "Leave the cellar and close the hatch behind you.",
-                "result_scene": "intro",
-            },
-        },
+    {
+        "id": "tee-004",
+        "name": "Premium Polo Tee",
+        "description": "Polo-style t-shirt with premium stitching.",
+        "price": 999,
+        "currency": "INR",
+        "category": "tshirt",
+        "color": "maroon",
+        "sizes": ["M", "L", "XL"],
     },
-    "cellar_key": {
-        "title": "Key in Hand",
-        "desc": (
-            "With the key in your hand the runes dim and a hidden panel slides open, revealing a "
-            "small statue that begins to hum. A voice, ancient and kind, asks: 'Will you return what was taken?'"
-        ),
-        "choices": {
-            "pledge_help": {
-                "desc": "Pledge to return what was taken.",
-                "result_scene": "reward",
-                "effects": {"add_journal": "You pledged to return what was taken."},
-            },
-            "refuse": {
-                "desc": "Refuse and pocket the key.",
-                "result_scene": "cursed_key",
-                "effects": {"add_journal": "You pocketed the key; a weight grows in your pocket."},
-            },
-        },
+    {
+        "id": "tee-005",
+        "name": "Summer V-neck Tee",
+        "description": "Lightweight V-neck tee for hot days.",
+        "price": 350,
+        "currency": "INR",
+        "category": "tshirt",
+        "color": "sky",
+        "sizes": ["S", "M", "L"],
     },
-    "scroll_reveal": {
-        "title": "The Scroll",
-        "desc": (
-            "The scroll tells of an heirloom taken by a water spirit that dwells beneath the tower. "
-            "It hints that the brass key 'speaks' when offered with truth."
-        ),
-        "choices": {
-            "search_for_key": {
-                "desc": "Search the plinth for a key.",
-                "result_scene": "cellar_key",
-            },
-            "leave_quietly": {
-                "desc": "Leave the cellar and keep the knowledge to yourself.",
-                "result_scene": "intro",
-            },
-        },
+    {
+        "id": "tee-006",
+        "name": "Henley Tee",
+        "description": "Smart casual henley style t-shirt.",
+        "price": 699,
+        "currency": "INR",
+        "category": "tshirt",
+        "color": "olive",
+        "sizes": ["M", "L", "XL"],
     },
-    "tower_combat": {
-        "title": "Something Emerges",
-        "desc": (
-            "A hunched, brine-soaked creature scrambles out from the tower. Its eyes glow with hunger. "
-            "You must act quickly."
-        ),
-        "choices": {
-            "fight": {
-                "desc": "Fight the creature.",
-                "result_scene": "fight_win",
-            },
-            "flee": {
-                "desc": "Flee back to the shore.",
-                "result_scene": "intro",
-            },
-        },
+    # Raincoats / Outerwear
+    {
+        "id": "rain-001",
+        "name": "Light Raincoat",
+        "description": "Waterproof light raincoat, packable.",
+        "price": 1299,
+        "currency": "INR",
+        "category": "raincoat",
+        "color": "yellow",
+        "sizes": ["M", "L", "XL"],
     },
-    "fight_win": {
-        "title": "After the Scuffle",
-        "desc": (
-            "You manage to fend off the creature; it flees wailing towards the sea. On the ground lies "
-            "a small locket engraved with a crest — likely the heirloom mentioned in the scroll."
-        ),
-        "choices": {
-            "take_locket": {
-                "desc": "Take the locket and examine it.",
-                "result_scene": "reward",
-                "effects": {"add_inventory": "engraved_locket", "add_journal": "Recovered an engraved locket."},
-            },
-            "leave_locket": {
-                "desc": "Leave the locket and tend to your wounds.",
-                "result_scene": "intro",
-            },
-        },
+    {
+        "id": "rain-002",
+        "name": "Heavy Duty Raincoat",
+        "description": "Heavy-duty rainproof coat for monsoon.",
+        "price": 2499,
+        "currency": "INR",
+        "category": "raincoat",
+        "color": "navy",
+        "sizes": ["L", "XL"],
     },
-    "reward": {
-        "title": "A Minor Resolution",
-        "desc": (
-            "A small sense of peace settles over Brinmere. Villagers may one day know the heirloom is found, or it may remain a secret. "
-            "You feel the night shift; the little arc of your story here closes for now."
-        ),
-        "choices": {
-            "end_session": {
-                "desc": "End the session and return to the shore (conclude mini-arc).",
-                "result_scene": "intro",
-            },
-            "keep_exploring": {
-                "desc": "Keep exploring for more mysteries.",
-                "result_scene": "intro",
-            },
-        },
+    # Laptops
+    {
+        "id": "laptop-001",
+        "name": "Generic Laptop (50k)",
+        "description": "A reliable laptop suitable for everyday use.",
+        "price": 50000,
+        "currency": "INR",
+        "category": "laptop",
+        "color": "silver",
+        "sizes": [],
     },
-    "cursed_key": {
-        "title": "A Weight in the Pocket",
-        "desc": (
-            "The brass key glows coldly. You feel a heavy sorrow that tugs at your thoughts. "
-            "Perhaps the key demands something in return..."
-        ),
-        "choices": {
-            "seek_redemption": {
-                "desc": "Seek a way to make amends.",
-                "result_scene": "reward",
-            },
-            "bury_key": {
-                "desc": "Bury the key and hope the weight fades.",
-                "result_scene": "intro",
-            },
-        },
+    {
+        "id": "laptop-002",
+        "name": "Dell Inspiron (Budget)",
+        "description": "Compact Dell laptop for students and professionals.",
+        "price": 27800,
+        "currency": "INR",
+        "category": "laptop",
+        "color": "black",
+        "sizes": [],
     },
-    "cottages": {
-        "title": "The Sleeping Village",
-        "desc": (
-            "The cluster of cottages is dark and quiet. A single, small candle flickers in one window. "
-            "You can approach the lit window, knock on a door, or return to the shore."
-        ),
-        "choices": {
-            "approach_window": {
-                "desc": "Approach the window with the light.",
-                "result_scene": "window_check",
-            },
-            "knock_door": {
-                "desc": "Knock on a nearby door.",
-                "result_scene": "door_knock",
-            },
-            "return_to_shore": {
-                "desc": "Return to the shore.",
-                "result_scene": "intro",
-            },
-        },
+    {
+        "id": "laptop-003",
+        "name": "Lenovo ThinkPad",
+        "description": "Durable Lenovo laptop with strong performance.",
+        "price": 60000,
+        "currency": "INR",
+        "category": "laptop",
+        "color": "black",
+        "sizes": [],
     },
-    "window_check": {
-        "title": "The Faint Light",
-        "desc": (
-            "The window is small and grimy. You see an old woman, Elara, hunched over a spinning wheel, "
-            "her face etched with worry. She does not seem to have noticed you."
-        ),
-        "choices": {
-            "hail_elara": {
-                "desc": "Call out to Elara.",
-                "result_scene": "elara_talk",
-                "effects": {"add_journal": "Met Elara, an old woman in the cottages."},
-            },
-            "move_on": {
-                "desc": "Move away quietly.",
-                "result_scene": "cottages",
-            },
-        },
+    {
+        "id": "laptop-004",
+        "name": "HP Pavilion",
+        "description": "High-performance HP laptop for creators.",
+        "price": 100000,
+        "currency": "INR",
+        "category": "laptop",
+        "color": "silver",
+        "sizes": [],
     },
-    "elara_talk": {
-        "title": "Elara's Sorrow",
-        "desc": (
-            "Elara turns, startled. Her eyes are watery but sharp. 'The tower fire was ill luck,' she whispers. "
-            "'They say the sea claims more than just ships. If you seek the truth of Brinmere, look to the tide mark, not the stone.'"
-        ),
-        "choices": {
-            "ask_about_tide_mark": {
-                "desc": "Ask Elara what she means by the 'tide mark'.",
-                "result_scene": "elara_clue",
-            },
-            "thank_and_leave": {
-                "desc": "Thank her and leave.",
-                "result_scene": "cottages",
-            },
-        },
+    # Storage
+    {
+        "id": "storage-001",
+        "name": "External Hard Disk 1TB",
+        "description": "Portable external hard disk for backups.",
+        "price": 50000,
+        "currency": "INR",
+        "category": "storage",
+        "color": "black",
+        "sizes": [],
     },
-    "elara_clue": {
-        "title": "A Cryptic Hint",
-        "desc": (
-            "Elara shakes her head. 'The tide mark is the edge of memory. Go back to where you woke and look deeper at the sand.' "
-            "She then closes her eyes, refusing to speak further."
-        ),
-        "choices": {
-            "return_to_shore": {
-                "desc": "Return immediately to the shore.",
-                "result_scene": "intro",
-            },
-            "try_another_door": {
-                "desc": "Try to talk to another villager.",
-                "result_scene": "door_knock",
-            },
-        },
+    # Mobile phones (10k - 50k examples)
+    {
+        "id": "phone-001",
+        "name": "Redmi Note (Entry)",
+        "description": "Affordable Redmi smartphone with solid features.",
+        "price": 12000,
+        "currency": "INR",
+        "category": "mobile",
+        "color": "blue",
+        "sizes": [],
     },
-    "door_knock": {
-        "title": "Unanswered Door",
-        "desc": (
-            "You knock gently on a cottage door. There is no answer, only a deep silence from within. "
-            "The villagers here seem to keep to themselves."
-        ),
-        "choices": {
-            "try_another_door": {
-                "desc": "Knock on another door.",
-                "result_scene": "door_knock",
-            },
-            "return_to_shore": {
-                "desc": "Return to the shore.",
-                "result_scene": "intro",
-            },
-        },
+    {
+        "id": "phone-002",
+        "name": "Oppo A-Series",
+        "description": "Stylish Oppo phone with good camera.",
+        "price": 18000,
+        "currency": "INR",
+        "category": "mobile",
+        "color": "green",
+        "sizes": [],
     },
-}
+    {
+        "id": "phone-003",
+        "name": "Samsung M-Series",
+        "description": "Mid-range Samsung phone for everyday use.",
+        "price": 25000,
+        "currency": "INR",
+        "category": "mobile",
+        "color": "black",
+        "sizes": [],
+    },
+    {
+        "id": "phone-004",
+        "name": "iPhone (Standard)",
+        "description": "Apple iPhone model example (price varies by config).",
+        "price": 50000,
+        "currency": "INR",
+        "category": "mobile",
+        "color": "white",
+        "sizes": [],
+    },
+    {
+        "id": "phone-005",
+        "name": "Oppo Reno",
+        "description": "Higher-end Oppo phone with premium features.",
+        "price": 35000,
+        "currency": "INR",
+        "category": "mobile",
+        "color": "black",
+        "sizes": [],
+    },
+    {
+        "id": "phone-006",
+        "name": "Redmi Pro",
+        "description": "Redmi higher-tier phone with improved camera and battery.",
+        "price": 22000,
+        "currency": "INR",
+        "category": "mobile",
+        "color": "grey",
+        "sizes": [],
+    },
+]
+
+
+ORDERS_FILE = "orders.json"
+
+# ensure orders file exists
+if not os.path.exists(ORDERS_FILE):
+    with open(ORDERS_FILE, "w") as f:
+        json.dump([], f)
 
 # -------------------------
-# Per-session Userdata
+# Per-session Userdata (shopping-centric)
 # -------------------------
 @dataclass
 class Userdata:
-    player_name: Optional[str] = None
-    current_scene: str = "intro"
-    history: List[Dict] = field(default_factory=list)  # list of {'scene', 'action', 'time', 'result_scene'}
-    journal: List[str] = field(default_factory=list)
-    inventory: List[str] = field(default_factory=list)
-    named_npcs: Dict[str, str] = field(default_factory=dict)
-    choices_made: List[str] = field(default_factory=list)
+    player_name: Optional[str] = None  # retained name field (player -> customer)
     session_id: str = field(default_factory=lambda: str(uuid.uuid4())[:8])
     started_at: str = field(default_factory=lambda: datetime.utcnow().isoformat() + "Z")
+    cart: List[Dict] = field(default_factory=list)  # list of {product_id, quantity, attrs}
+    orders: List[Dict] = field(default_factory=list)  # orders placed in this session
+    history: List[Dict] = field(default_factory=list)  # conversational actions for trace
 
 # -------------------------
-# Helper functions
-# -------------------------
-def scene_text(scene_key: str, userdata: Userdata) -> str:
-    """
-    Build the descriptive text for the current scene, and append choices as short hints.
-    Always end with 'What do you do?' so the voice flow prompts player input.
-    """
-    scene = WORLD.get(scene_key)
-    if not scene:
-        return "You are in a featureless void. What do you do?"
-
-    # Check for inventory/journal items to subtly change the description (optional, but good)
-    if scene_key == "tower" and "Found map fragment: 'Beneath the tower, the latch sings.'" in userdata.journal:
-        # If the player has the map, transition them to the better scene instantly, or hint strongly
-        return scene_text("tower_approach", userdata)
-
-
-    desc = f"{scene['desc']}\n\nChoices:\n"
-    for cid, cmeta in scene.get("choices", {}).items():
-        desc += f"- {cmeta['desc']}\n" 
-    
-    # GM MUST end with the action prompt
-    desc += "\nWhat do you do?"
-    return desc
-
-def apply_effects(effects: dict, userdata: Userdata):
-    if not effects:
-        return
-    if "add_journal" in effects:
-        userdata.journal.append(effects["add_journal"])
-    if "add_inventory" in effects:
-        # Only add if not already present
-        if effects["add_inventory"] not in userdata.inventory:
-            userdata.inventory.append(effects["add_inventory"])
-    # Extendable for more effect keys
-
-def summarize_scene_transition(old_scene: str, action_key: str, result_scene: str, userdata: Userdata) -> str:
-    """Record the transition into history and return a short narrative the GM can use."""
-    entry = {
-        "from": old_scene,
-        "action": action_key,
-        "to": result_scene,
-        "time": datetime.utcnow().isoformat() + "Z",
-    }
-    userdata.history.append(entry)
-    userdata.choices_made.append(action_key)
-    # Use the description of the choice for a more narrative response
-    choice_desc = WORLD[old_scene]['choices'][action_key]['desc']
-    
-    # Add a slight narrative flourish
-    if 'take' in action_key or 'pick' in action_key:
-        return f"You {choice_desc.lower().replace('up the', '').replace('the', '')}, a new path opens."
-    if 'approach' in action_key or 'go to' in action_key or 'walk' in action_key:
-        return f"You decide to {choice_desc.lower().replace('go to', '').replace('head', '')} and proceed."
-    
-    return f"You chose to '{choice_desc.strip('.')}', and the scene changes."
-
-# -------------------------
-# Agent Tools (function_tool)
+# Merchant-layer helpers (ACP-inspired mini layer)
 # -------------------------
 
-@function_tool
-async def start_adventure(
-    ctx: RunContext[Userdata],
-    player_name: Annotated[Optional[str], Field(description="Player name", default=None)] = None,
-) -> str:
-    """Initialize a new adventure session for the player and return the opening description."""
-    userdata = ctx.userdata
-    if player_name:
-        userdata.player_name = player_name
-    userdata.current_scene = "intro"
-    userdata.history = []
-    userdata.journal = []
-    userdata.inventory = []
-    userdata.named_npcs = {}
-    userdata.choices_made = []
-    userdata.session_id = str(uuid.uuid4())[:8]
-    userdata.started_at = datetime.utcnow().isoformat() + "Z"
+def _load_all_orders() -> List[Dict]:
+    try:
+        with open(ORDERS_FILE, "r") as f:
+            return json.load(f)
+    except Exception:
+        return []
 
-    opening = (
-        f"Greetings {userdata.player_name or 'traveler'}. Welcome to '{WORLD['intro']['title']}'. "
-        "A new adventure begins now.\n\n"
-        + scene_text("intro", userdata)
-    )
-    # Ensure GM prompt present
-    if not opening.endswith("What do you do?"):
-        opening += "\nWhat do you do?"
-    return opening
 
-@function_tool
-async def get_scene(
-    ctx: RunContext[Userdata],
-) -> str:
-    """Return the current scene description (useful for 'remind me where I am')."""
-    userdata = ctx.userdata
-    scene_k = userdata.current_scene or "intro"
-    txt = scene_text(scene_k, userdata)
-    return txt
+def _save_order(order: Dict):
+    orders = _load_all_orders()
+    orders.append(order)
+    with open(ORDERS_FILE, "w") as f:
+        json.dump(orders, f, indent=2)
 
-@function_tool
-async def player_action(
-    ctx: RunContext[Userdata],
-    action: Annotated[str, Field(description="Player spoken action (e.g., 'I want to check the wooden box' or 'fight the monster')")],
-) -> str:
+
+def list_products(filters: Optional[Dict] = None) -> List[Dict]:
+    """Naive filtering by category, max_price, color, size substring, or query words.
+
+    Improvements:
+    - Accepts category synonyms (e.g., 'phone', 'mobile', 'phones' -> 'mobile').
+    - Supports a flexible max_price and min_price (if provided in filters).
+    - Matches category by substring if exact match fails.
     """
-    Accept player's action, use advanced logic to resolve it to a defined choice,
-    update userdata, advance to the next scene and return the GM's next description (ending with 'What do you do?').
-    """
-    userdata = ctx.userdata
-    current = userdata.current_scene or "intro"
-    scene = WORLD.get(current)
-    action_text = (action or "").strip()
-    chosen_key = None
+    filters = filters or {}
+    results = []
+    query = filters.get("q")
+    category = filters.get("category")
+    max_price = filters.get("max_price") or filters.get("to") or filters.get("max")
+    min_price = filters.get("min_price") or filters.get("from") or filters.get("min")
+    color = filters.get("color")
+    size = filters.get("size")
 
-    if not scene:
-        # Should not happen in this structured world, but a safe fallback
-        return restart_adventure(ctx)
+    # normalize category synonyms
+    if category:
+        cat = category.lower()
+        if cat in ("phone", "phones", "mobile", "mobile phone", "mobiles"):
+            category = "mobile"
+        elif cat in ("tshirt", "t-shirts", "tees", "tee"):
+            category = "tshirt"
+        else:
+            category = cat
 
-    # --- Action Resolution: Attempt 1, 2, 3 (Fuzzy Match/Keyword) ---
-
-    # Attempt 1: match exact action key (e.g., 'inspect_box')
-    if action_text.lower() in (scene.get("choices") or {}):
-        chosen_key = action_text.lower()
-    
-    # Attempt 2: fuzzy match by checking if action_text contains the choice key or descriptive words
-    if not chosen_key:
-        for cid, cmeta in (scene.get("choices") or {}).items():
-            desc = cmeta.get("desc", "").lower()
-            # Look for exact key or a match on a few descriptive keywords
-            if cid in action_text.lower() or any(w in action_text.lower() for w in desc.lower().split()[:4] if len(w) > 2):
-                chosen_key = cid
-                break
-
-    # Attempt 3: secondary keyword matching
-    if not chosen_key:
-        for cid, cmeta in (scene.get("choices") or {}).items():
-            desc = cmeta.get("desc", "").lower()
-            for keyword in ["take", "pick", "open", "go", "return", "leave", "fight", "flee", "search", "descend", "close"]:
-                if keyword in action_text.lower() and keyword in desc:
-                    chosen_key = cid
-                    break
-            if chosen_key:
-                break
-
-
-    # --- Action Resolution: Attempt 4 (LLM Interpretation) ---
-    if not chosen_key:
-        # Use LLM to resolve natural language action to a specific choice key
-        choice_map = {cid: cmeta['desc'] for cid, cmeta in (scene.get("choices") or {}).items()}
-        choices_prompt = json.dumps(choice_map, indent=2)
-
-        resolution_prompt = f"""
-        The player is currently in the scene: '{scene['title']}'.
-        The available choice keys and their descriptions are:
-        {choices_prompt}
-        The player's spoken action was: '{action_text}'.
-        
-        Your task is to act as a logic engine. Resolve the player's action to the single best matching choice key from the list.
-        Do not output any explanation, quotation marks, or extra text.
-        If the action is ambiguous, irrelevant, or does not clearly map to any choice, output the word 'NONE'.
-        Output ONLY the choice key or 'NONE'.
-        """
-        try:
-            llm_result = await ctx.llm.chat_completion(
-                messages=[{"role": "user", "content": resolution_prompt}],
-                model="gemini-2.5-flash", # Use a fast model for resolution
-                temperature=0.0
-            )
-            # Clean the output to ensure it is just the key
-            resolved_key = llm_result.choices[0].message.content.strip().lower().replace('"', '').replace("'", "")
-            if resolved_key in choice_map:
-                chosen_key = resolved_key
-                logger.info(f"LLM resolved action '{action_text}' to key: {chosen_key}")
+    for p in CATALOG:
+        ok = True
+        # category matching: allow substring matches if direct equality fails
+        if category:
+            pcat = p.get("category", "").lower()
+            if pcat != category and category not in pcat and pcat not in category:
+                ok = False
+        if max_price:
+            try:
+                if p.get("price", 0) > int(max_price):
+                    ok = False
+            except Exception:
+                pass
+        if min_price:
+            try:
+                if p.get("price", 0) < int(min_price):
+                    ok = False
+            except Exception:
+                pass
+        if color and p.get("color") and p.get("color") != color:
+            ok = False
+        if size and (not p.get("sizes") or size not in p.get("sizes")):
+            ok = False
+        if query:
+            q = query.lower()
+            # if query mentions 'phone' or 'mobile', accept mobile category too
+            if "phone" in q or "mobile" in q:
+                if p.get("category") != "mobile":
+                    ok = False
             else:
-                logger.info(f"LLM could not resolve action: '{action_text}'. Result: {resolved_key}")
+                if q not in p.get("name", "").lower() and q not in p.get("description", "").lower():
+                    ok = False
+        if ok:
+            results.append(p)
+    return results
 
-        except Exception as e:
-            logger.error(f"LLM resolution failed during tool execution: {e}")
-            # Fall back to clarification message if LLM fails
 
-    if not chosen_key:
-        # Final fallback: If we still can't resolve, ask for clarification
-        resp = (
-            "I need a clearer action to move the story forward. Please choose one of the options I presented, "
-            "or use a very simple phrase related to the options, like 'take the map' or 'descend'.\n\n"
-            + scene_text(current, userdata)
-        )
-        return resp
+def find_product_by_ref(ref_text: str, candidates: Optional[List[Dict]] = None) -> Optional[Dict]:
+    """Resolve references like 'second hoodie' or 'black hoodie' to a product dict.
+    Heuristics improved:
+    - Handle ordinals like 'first/second/third' within a filtered candidate list.
+    - If ref mentions 'phone' or 'mobile' prefer mobile category products.
+    - Match by id, color+category, name substring, or numeric index.
+    """
+    ref = (ref_text or "").lower().strip()
+    cand = candidates if candidates is not None else CATALOG
 
-    # --- Execute Action ---
+    # prefer mobiles if user explicitly mentions phone/mobile
+    wants_mobile = any(w in ref for w in ("phone", "phones", "mobile", "mobiles"))
+    filtered = cand
+    if wants_mobile:
+        filtered = [p for p in cand if p.get("category") == "mobile"]
+        if not filtered:
+            filtered = cand
+
+    # ordinal handling
+    ordinals = {"first": 0, "second": 1, "third": 2, "fourth": 3}
+    for word, idx in ordinals.items():
+        if word in ref:
+            if idx < len(filtered):
+                return filtered[idx]
+
+    # direct id match
+    for p in cand:
+        if p["id"].lower() == ref:
+            return p
+
+    # color + category matching
+    for p in cand:
+        if p.get("color") and p["color"] in ref and p.get("category") and p["category"] in ref:
+            return p
+
+    # name substring or keywords
+    for p in filtered:
+        name = p["name"].lower()
+        if all(tok in name for tok in ref.split() if len(tok) > 2):
+            return p
+    for p in cand:
+        for tok in ref.split():
+            if len(tok) > 2 and tok in p["name"].lower():
+                return p
+
+    # numeric index like '2' -> second
+    for token in ref.split():
+        if token.isdigit():
+            idx = int(token) - 1
+            if 0 <= idx < len(filtered):
+                return filtered[idx]
+
+    # fallback: if user said 'second phone' but we couldn't match earlier, try overall cand ordinals
+    for word, idx in ordinals.items():
+        if word in ref and idx < len(cand):
+            return cand[idx]
+
+    return None
+
+
+def create_order_object(line_items: List[Dict], currency: str = "INR") -> Dict:
+    """line_items: [{product_id, quantity, attrs}]
+    Returns an order dict (id, items, total, currency, created_at)
+    """
+    items = []
+    total = 0
+    for li in line_items:
+        pid = li.get("product_id")
+        qty = int(li.get("quantity", 1))
+        prod = next((p for p in CATALOG if p["id"] == pid), None)
+        if not prod:
+            # Note: This is a critical error path, better to raise or log carefully
+            logger.error(f"Product {pid} not found during order creation.")
+            continue 
+        
+        line_total = prod["price"] * qty
+        total += line_total
+        items.append({
+            "product_id": pid,
+            "name": prod["name"],
+            "unit_price": prod["price"],
+            "quantity": qty,
+            "line_total": line_total,
+            "attrs": li.get("attrs", {}),
+        })
     
-    # Get the chosen choice's metadata
-    choice_meta = scene["choices"].get(chosen_key)
-    result_scene = choice_meta.get("result_scene", current)
-    effects = choice_meta.get("effects", None)
+    if not items:
+        raise ValueError("Cannot create order with no valid items.")
+        
+    order = {
+        "id": f"order-{str(uuid.uuid4())[:8]}",
+        "items": items,
+        "total": total,
+        "currency": currency,
+        "created_at": datetime.utcnow().isoformat() + "Z",
+    }
+    # persist
+    _save_order(order)
+    return order
 
-    # Apply effects (inventory/journal, etc.)
-    apply_effects(effects or {}, userdata)
 
-    # Record transition and get narrative summary
-    _note = summarize_scene_transition(current, chosen_key, result_scene, userdata)
+def get_most_recent_order() -> Optional[Dict]:
+    all_orders = _load_all_orders()
+    if not all_orders:
+        return None
+    return all_orders[-1]
 
-    # Update current scene
-    userdata.current_scene = result_scene
-
-    # Build narrative reply: echo a short confirmation, then describe next scene
-    next_desc = scene_text(result_scene, userdata)
-
-    # Removed the specific persona prefix ("Aurek, the Game Master, says: ")
-    reply = f"{_note}\n\n{next_desc}"
-    
-    # ensure final prompt present
-    if not reply.endswith("What do you do?"):
-        reply += "\nWhat do you do?"
-    return reply
+# -------------------------
+# Agent Tools (function_tool) exposed to the LLM layer
+# -------------------------
 
 @function_tool
-async def show_journal(
+async def show_catalog(
     ctx: RunContext[Userdata],
+    q: Annotated[Optional[str], Field(description="Search query (optional)", default=None)] = None,
+    category: Annotated[Optional[str], Field(description="Category (optional)", default=None)] = None,
+    max_price: Annotated[Optional[int], Field(description="Maximum price (optional)", default=None)] = None,
+    color: Annotated[Optional[str], Field(description="Color (optional)", default=None)] = None,
 ) -> str:
+    """Return a short spoken summary of matching products (name, price, id).
+    Only returns the top 4 to 8 results for brevity in a voice interface.
+    """
     userdata = ctx.userdata
-    lines = []
-    lines.append(f"Session: {userdata.session_id} | Started at: {userdata.started_at}")
-    if userdata.player_name:
-        lines.append(f"Player: {userdata.player_name}")
-    if userdata.journal:
-        lines.append("\nJournal entries:")
-        for j in userdata.journal:
-            lines.append(f"- {j}")
-    else:
-        lines.append("\nJournal is empty.")
-    if userdata.inventory:
-        lines.append("\nInventory:")
-        for it in userdata.inventory:
-            lines.append(f"- {it}")
-    else:
-        lines.append("\nNo items in inventory.")
-    lines.append("\nRecent choices:")
-    for h in userdata.history[-6:]:
-        lines.append(f"- {h['time']} | from {h['from']} -> {h['to']} via {h['action']}")
-    lines.append("\nWhat do you do?")
+    # try to normalize category input for filtering
+    if category:
+        cat = category.lower()
+        if cat in ("phone", "phones", "mobile", "mobile phone", "mobiles"):
+            category = "mobile"
+        elif cat in ("tshirt", "t-shirts", "tees", "tee"):
+            category = "tshirt"
+        else:
+            category = cat
+    # If query mentions phones or tees, use those categories
+    if not category and q:
+        q_lower = q.lower()
+        if any(w in q_lower for w in ("phone", "phones", "mobile", "mobiles")):
+            category = "mobile"
+        elif any(w in q_lower for w in ("tee", "tshirt", "t-shirts", "tees")):
+            category = "tshirt"
+
+    filters = {"q": q, "category": category, "max_price": max_price, "color": color}
+    # Use list_products helper which handles synonyms and multiple filters
+    prods = list_products({k: v for k, v in filters.items() if v is not None})
+    
+    if not prods:
+        return "Sorry — I couldn't find any items that match. Would you like to try another search?"
+    
+    # Summarize top 8 (up to 8 is better than top 4 for variety)
+    limit = 8
+    lines = [f"Here are the top {min(limit, len(prods))} items I found at the shop:"]
+    for idx, p in enumerate(prods[:limit], start=1):
+        size_info = f" (sizes: {', '.join(p['sizes'])})" if p.get('sizes') else ""
+        lines.append(f"{idx}. {p['name']} — {p['price']} {p['currency']} (id: {p['id']}){size_info}")
+    
+    lines.append("You can say: 'I want the second item in size M' or 'add mug-001 to my cart, quantity 2'.")
+    
+    # If mobiles were in results, add a short phrasing hint
+    if any(p.get('category') == 'mobile' for p in prods[:limit]):
+        lines.append("To buy a phone say: 'Add phone-002 to my cart' or 'I want the second phone, quantity 1'.")
+    
     return "\n".join(lines)
 
+
 @function_tool
-async def restart_adventure(
+async def add_to_cart(
+    ctx: RunContext[Userdata],
+    product_ref: Annotated[str, Field(description="Reference to product: id, name, or spoken ref")] ,
+    quantity: Annotated[int, Field(description="Quantity", default=1)] = 1,
+    size: Annotated[Optional[str], Field(description="Size (optional)", default=None)] = None,
+) -> str:
+    """Resolve a product and add to the session cart."""
+    userdata = ctx.userdata
+    # take recent catalog as candidates
+    candidates = CATALOG
+    prod = find_product_by_ref(product_ref, candidates)
+    if not prod:
+        return "I couldn't resolve which product you meant. Try using the item id or say 'show catalog' to hear options.'"
+    
+    # Size validation for apparel
+    if prod.get("sizes") and size and size.upper() not in [s.upper() for s in prod["sizes"]]:
+         return f"Sorry, {prod['name']} is available in sizes {', '.join(prod['sizes'])}, but not '{size}'. Please specify an available size."
+    
+    # Normalize size input
+    normalized_size = size.upper() if size else None
+    
+    userdata.cart.append({
+        "product_id": prod["id"],
+        "quantity": int(quantity),
+        "attrs": {"size": normalized_size} if normalized_size else {},
+    })
+    userdata.history.append({
+        "time": datetime.utcnow().isoformat() + "Z",
+        "action": "add_to_cart",
+        "product_id": prod["id"],
+        "quantity": int(quantity),
+    })
+    return f"Added {quantity} x {prod['name']} to your cart. What would you like to do next?"
+
+
+@function_tool
+async def show_cart(
     ctx: RunContext[Userdata],
 ) -> str:
-    """Reset the userdata and start again."""
+    """Show the current contents and total of the user's cart."""
     userdata = ctx.userdata
-    userdata.current_scene = "intro"
-    userdata.history = []
-    userdata.journal = []
-    userdata.inventory = []
-    userdata.named_npcs = {}
-    userdata.choices_made = []
-    userdata.session_id = str(uuid.uuid4())[:8]
-    userdata.started_at = datetime.utcnow().isoformat() + "Z"
-    greeting = (
-        "The world resets. A new tide laps at the shore. You stand once more at the beginning.\n\n"
-        + scene_text("intro", userdata)
-    )
-    if not greeting.endswith("What do you do?"):
-        greeting += "\nWhat do you do?"
-    return greeting
+    if not userdata.cart:
+        return "Your cart is empty. You can say 'show catalog' to browse items.'"
+    
+    lines = ["Items in your cart:"]
+    total = 0
+    for li in userdata.cart:
+        p = next((x for x in CATALOG if x["id"] == li["product_id"]), None)
+        if not p:
+            continue
+        qty = li.get("quantity", 1)
+        line_total = p["price"] * qty
+        total += line_total
+        sz = li.get("attrs", {}).get("size")
+        sz_text = f", size {sz}" if sz else ""
+        lines.append(f"- {p['name']} x {qty}{sz_text}: {line_total} INR")
+        
+    lines.append(f"Cart total: {total} INR")
+    lines.append("Say 'place my order' to checkout or 'clear cart' to empty the cart.")
+    return "\n".join(lines)
+
+
+@function_tool
+async def clear_cart(
+    ctx: RunContext[Userdata],
+) -> str:
+    """Empties the user's current session cart."""
+    userdata = ctx.userdata
+    if not userdata.cart:
+        return "Your cart is already empty."
+        
+    userdata.cart = []
+    userdata.history.append({"time": datetime.utcnow().isoformat() + "Z", "action": "clear_cart"})
+    return "Your cart has been cleared. What would you like to do next?"
+
+
+@function_tool
+async def place_order(
+    ctx: RunContext[Userdata],
+    confirm: Annotated[bool, Field(description="Confirm order placement", default=True)] = True,
+) -> str:
+    """Create order from session cart and persist. Returns order summary."""
+    userdata = ctx.userdata
+    if not userdata.cart:
+        return "Your cart is empty — nothing to place. Would you like to browse items?"
+    
+    # Build line_items
+    line_items = []
+    for li in userdata.cart:
+        line_items.append({
+            "product_id": li["product_id"],
+            "quantity": li.get("quantity", 1),
+            "attrs": li.get("attrs", {}),
+        })
+    
+    try:
+        order = create_order_object(line_items)
+    except ValueError as e:
+        logger.error(f"Failed to create order: {e}")
+        return "I had trouble processing the order. Your cart items might be invalid. Please clear your cart and try again."
+        
+    userdata.orders.append(order)
+    userdata.history.append({"time": datetime.utcnow().isoformat() + "Z", "action": "place_order", "order_id": order["id"]})
+    
+    # clear cart after order
+    userdata.cart = []
+    return f"Order placed. Order ID {order['id']}. Total {order['total']} {order['currency']}. Thank you for shopping with Ramu Kaka! What would you like to do next?"
+
+
+@function_tool
+async def last_order(
+    ctx: RunContext[Userdata],
+) -> str:
+    """Retrieves and summarizes the most recently placed order across all sessions (from orders.json)."""
+    ord = get_most_recent_order()
+    if not ord:
+        return "You have no past orders yet."
+    lines = [f"Most recent order: {ord['id']} — placed on {ord['created_at'].split('T')[0]}"]
+    for it in ord['items']:
+        # Format item attributes if present (like size)
+        attrs = it.get('attrs', {})
+        attr_text = f" (Size: {attrs['size']})" if attrs.get('size') else ""
+        lines.append(f"- {it['name']} x {it['quantity']}{attr_text}: {it['line_total']} {ord['currency']}")
+    lines.append(f"Total: {ord['total']} {ord['currency']}")
+    lines.append("Is there anything else I can help you find today?")
+    return "\n".join(lines)
 
 # -------------------------
-# The Agent (GameMasterAgent)
+# The Agent (Ramu Kaka)
 # -------------------------
 class GameMasterAgent(Agent):
     def __init__(self):
-        # System instructions define Universe, Tone, Role
+        # System instructions now describe the shopkeeper persona and commerce role
         instructions = """
-        You are the Game Master (GM) for a voice-only, Dungeons-and-Dragons-style short adventure.
-        Universe: Low-magic coastal fantasy (village of Brinmere, tide-smoothed ruins, minor spirits).
-        Tone: Mysterious, dramatic, empathetic.
-        Role: You are the GM. You describe scenes vividly, remember the player's past choices, named NPCs, inventory and locations.
-              You must use your internal intelligence to interpret the player's natural language action and select the most appropriate
-              game tool to advance the story.
+        You are 'Ramu Kaka', the friendly shopkeeper and voice assistant for the neighborhood shop.
+        Universe: A small neighbourhood Indian shop selling mugs, hoodies, tees, raincoats, and some electronics like phones and laptops.
+        Tone: Warm, helpful, slightly jocular; keep sentences short for TTS clarity. Use simple Hindi words occasionally for flair (e.g., 'namaste', 'acha').
+        Role: Help the customer browse the catalog, add items to cart, place orders, and review recent orders.
+
         Rules:
-            - Use the provided tools to start the adventure, get the current scene, accept the player's spoken action,
-              show the player's journal, or restart the adventure.
-            - When using the 'player_action' tool, pass the player's full spoken input. The tool has internal logic, assisted by the LLM, 
-              to resolve complex natural language input into one of the scene's defined choices.
-            - Keep continuity using the per-session userdata. Reference journal items and inventory when relevant.
-            - Drive short sessions (aim for several meaningful turns). Each GM message MUST end with 'What do you do?'.
-            - Respect that this agent is voice-first: responses should be concise enough for spoken delivery but evocative.
+            - Use the provided tools (show_catalog, add_to_cart, show_cart, clear_cart, place_order, last_order) to fulfill requests.
+            - Keep continuity using the per-session userdata. Mention cart contents if relevant.
+            - Drive short voice-first turns suitable for spoken delivery.
+            - When presenting options, include product id and price (e.g. 'mug-001 — 299 INR').
+            - If a customer asks to add an item but doesn't specify size, and the item has sizes, ask for the size immediately.
         """
         super().__init__(
             instructions=instructions,
-            tools=[start_adventure, get_scene, player_action, show_journal, restart_adventure],
+            tools=[show_catalog, add_to_cart, show_cart, clear_cart, place_order, last_order],
         )
 
 # -------------------------
-# Entrypoint & Prewarm (keeps speech functionality)
+# Entrypoint & Prewarm
 # -------------------------
 def prewarm(proc: JobProcess):
-    # load VAD model and stash on process userdata, try/catch like original file
+    """Pre-load the VAD model into process userdata."""
     try:
         proc.userdata["vad"] = silero.VAD.load()
+        logger.info("VAD model preloaded successfully.")
     except Exception:
-        logger.warning("VAD prewarm failed; continuing without preloaded VAD. (This may be expected in some environments.)")
+        logger.warning("VAD prewarm failed; continuing without preloaded VAD.")
+
 
 async def entrypoint(ctx: JobContext):
+    """Main entrypoint for the Agent session."""
     ctx.log_context_fields = {"room": ctx.room.name}
-    logger.info("Starting Voice Game Master Agent")
+    logger.info("\n" + "🛍️" * 6)
+    logger.info("🚀 STARTING VOICE E-COMMERCE AGENT (Neighborhood Shop) — Ramu Kaka")
 
     userdata = Userdata()
 
@@ -735,14 +728,16 @@ async def entrypoint(ctx: JobContext):
         userdata=userdata,
     )
 
-    # Start the agent session with the GameMasterAgent
+    # Start the agent session with the GameMasterAgent (Ramu Kaka)
     await session.start(
         agent=GameMasterAgent(),
         room=ctx.room,
         room_input_options=RoomInputOptions(noise_cancellation=noise_cancellation.BVC()),
     )
 
+    # Wait for the room connection to complete
     await ctx.connect()
+
 
 if __name__ == "__main__":
     cli.run_app(WorkerOptions(entrypoint_fnc=entrypoint, prewarm_fnc=prewarm))
